@@ -1,0 +1,40 @@
+👉6th test code 👈
+
+
+
+👉The following code is more cleaner and it woks but still it requires more cleaning👈                                                                        //@version=5
+indicator("Custom MA Crossover Indicator with Time Filter", shorttitle="MA", overlay=true)
+
+// User-defined input for moving averages
+shortMA = input.int(10, "Short MA Period", minval=1)
+longMA = input.int(100, "Long MA Period", minval=1)
+
+// User input for time window in UTC
+startHour = input.int(9, "Start Hour (UTC)", minval=0, maxval=23)
+startMinute = input.int(0, "Start Minute (UTC)", minval=0, maxval=59)
+endHour = input.int(15, "End Hour (UTC)", minval=0, maxval=23)
+endMinute = input.int(0, "End Minute (UTC)", minval=0, maxval=59)
+
+// Calculating moving averages
+shortMAValue = ta.sma(close, shortMA)
+longMAValue = ta.sma(close, longMA)
+
+// Plotting the MAs
+plot(shortMAValue, title="Short MA", color=color.blue)
+plot(longMAValue, title="Long MA", color=color.red)
+
+// Function to check if current time is within user-defined window
+isTimeValid() =>
+    utcStartTime = timestamp("GMT", year, month, dayofmonth, startHour, startMinute)
+    utcEndTime = timestamp("GMT", year, month, dayofmonth, endHour, endMinute)
+    time >= utcStartTime and time <= utcEndTime
+
+// Logic for Buy and Sell signals
+buySignal = ta.crossover(shortMAValue, longMAValue) and isTimeValid()
+sellSignal = ta.crossunder(shortMAValue, longMAValue) and isTimeValid()
+
+// Plotting the signals with labels
+if (buySignal)
+    label.new(bar_index, low, "BUY", color=color.green, style=label.style_label_up, textcolor=color.white, size=size.small, yloc=yloc.belowbar)
+if (sellSignal)
+    label.new(bar_index, high, "SELL", color=color.red, style=label.style_label_down, textcolor=color.white, size=size.small, yloc=yloc.abovebar)

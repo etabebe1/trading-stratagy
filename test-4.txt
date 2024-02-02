@@ -1,0 +1,39 @@
+👉4th trial but it's not perfect compared to the 1st trial👈
+
+
+
+//@version=5
+indicator("Dual MA Crossover with Time Filter", shorttitle="MA Crossover TF", overlay=true)
+
+// User inputs for MA periods
+shortMAPeriod = input(10, title="Short MA Period")
+longMAPeriod = input(100, title="Long MA Period")
+
+// User inputs for time window as integers (HHMM format)
+startTimeInput = input(0000, title="Start Time (HHMM)")
+endTimeInput = input(2359, title="End Time (HHMM)")
+
+// Calculating the moving averages
+shortMA = ta.sma(close, shortMAPeriod)
+longMA = ta.sma(close, longMAPeriod)
+
+// Plotting the moving averages
+plot(shortMA, color=color.blue, title="Short MA")
+plot(longMA, color=color.red, title="Long MA")
+
+// Generating buy and sell signals
+buySignal = ta.crossover(shortMA, longMA)
+sellSignal = ta.crossunder(shortMA, longMA)
+
+// Convert current bar's time to HHMM format
+currentTime = hour * 100 + minute
+
+// Check if the current bar's time is within the user-defined time window
+isWithinTimeWindow = (currentTime >= startTimeInput and currentTime <= endTimeInput)
+
+// Plotting buy and sell signals within the time window
+if (buySignal and isWithinTimeWindow)
+    label.new(bar_index, low, "Buy", color=color.green, style=label.style_label_up, textcolor=color.white, size=size.small, yloc=yloc.belowbar)
+
+if (sellSignal and isWithinTimeWindow)
+    label.new(bar_index, high, "Sell", color=color.red, style=label.style_label_down, textcolor=color.white, size=size.small, yloc=yloc.abovebar)

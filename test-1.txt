@@ -1,0 +1,26 @@
+//@version=5
+indicator("RSI with Signals", shorttitle="RSI Signals", overlay=false)
+
+// RSI settings
+rsiPeriod = input.int(14, title="RSI Period")
+overbought = input.int(70, title="Overbought Level")
+oversold = input.int(30, title="Oversold Level")
+
+// Calculate RSI
+rsi = ta.rsi(close, rsiPeriod)
+
+// Plot RSI and its levels
+plot(rsi, title="RSI", color=color.blue)
+hline(overbought, title="Overbought Level", color=color.red)
+hline(oversold, title="Oversold Level", color=color.green)
+
+// Generate signals
+bullishSignal = ta.crossover(rsi, oversold)
+bearishSignal = ta.crossunder(rsi, overbought)
+
+// Plot buy and sell labels
+if (bullishSignal)
+    label.new(bar_index, oversold, "Buy", color=color.green, style=label.style_label_up, textcolor=color.white, size=size.small, yloc=yloc.belowbar)
+
+if (bearishSignal)
+    label.new(bar_index, overbought, "Sell", color=color.red, style=label.style_label_down, textcolor=color.white, size=size.small, yloc=yloc.abovebar)

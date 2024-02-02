@@ -1,0 +1,54 @@
+2nd modified 👈
+
+
+
+
+//@version=5
+indicator("Dual MA Crossover with Time Filter", shorttitle="MA Crossover TF", overlay=true)
+
+// User inputs for MA periods
+shortMAPeriod = input(10, title="Short MA Period")
+longMAPeriod = input(100, title="Long MA Period")
+
+// User inputs for time window (UTC)
+startTimeInput = input.string("00:00", title="Start Time (UTC)", confirm=true)
+endTimeInput = input.string("23:59", title="End Time (UTC)", confirm=true)
+
+// Convert input string to session time
+startTime = timestamp("GMT", year(timenow), month(timenow), dayofmonth(timenow), hour(str.tostring(startTimeInput)), minute(str.tostring(startTimeInput)), 00)
+endTime = timestamp("GMT", year(timenow), month(timenow), dayofmonth(timenow), hour(str.tostring(endTimeInput)), minute(str.tostring(endTimeInput)), 00)
+
+// Calculating the moving averages
+shortMA = ta.sma(close, shortMAPeriod)
+longMA = ta.sma(close, longMAPeriod)
+
+// Plotting the moving averages
+plot(shortMA, color=color.blue, title="Short MA")
+plot(longMA, color=color.red, title="Long MA")
+
+// Checking if current bar's time is within user-defined time window
+isWithinTimeWindow = (time >= startTime and time <= endTime)
+
+// Generating buy and sell signals with time check
+buySignal = ta.crossover(shortMA, longMA) and isWithinTimeWindow
+sellSignal = ta.crossunder(shortMA, longMA) and isWithinTimeWindow
+
+// Plotting buy signals
+if (buySignal)
+    label.new(bar_index, low, "Buy", color=color.green, style=label.style_label_up, textcolor=color.white, size=size.small, yloc=yloc.belowbar)
+
+// Plotting sell signals
+if (sellSignal)
+    label.new(bar_index, high, "Sell", color=color.red, style=label.style_label_down, textcolor=color.white, size=size.small, yloc=yloc.abovebar)
+
+
+
+
+    👉 This is the error I'm getting from second indicator strategy  and it's not working                                                                                        12:57:58 PM  
+Error at 13:87 Cannot call 'hour' with argument 'time'='call 'str.tostring' (simple string)'. An argument of 'simple string' type was used but a 'series int' is expected.
+12:57:58 PM  
+Error at 13:125 Cannot call 'minute' with argument 'time'='call 'str.tostring' (simple string)'. An argument of 'simple string' type was used but a 'series int' is expected.
+12:57:58 PM  
+Error at 14:85 Cannot call 'hour' with argument 'time'='call 'str.tostring' (simple string)'. An argument of 'simple string' type was used but a 'series int' is expected.
+12:57:58 PM  
+Error at 14:121 Cannot call 'minute' with argument 'time'='call 'str.tostring' (simple string)'. An argument of 'simple string' type was used but a 'series int' is expected.

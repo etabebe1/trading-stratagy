@@ -1,0 +1,56 @@
+👉 Bellow is 3rd trial but it's not working still
+
+
+//@version=5
+indicator("Dual MA Crossover with Time Filter", shorttitle="MA Crossover TF", overlay=true)
+
+// User inputs for MA periods
+shortMAPeriod = input(10, title="Short MA Period")
+longMAPeriod = input(100, title="Long MA Period")
+
+// User inputs for time window (UTC)
+startTimeInput = input.string("00:00", title="Start Time (UTC)")
+endTimeInput = input.string("23:59", title="End Time (UTC)")
+
+// Function to convert time input string to hours and minutes
+parseTime(str) =>
+    var int[] timeParts = str.split(":")
+    [str.toint(timeParts[0]), str.toint(timeParts[1])]
+
+// Extracting hours and minutes from user input
+[startHour, startMinute] = parseTime(startTimeInput)
+[endHour, endMinute] = parseTime(endTimeInput)
+
+// Calculating the moving averages
+shortMA = ta.sma(close, shortMAPeriod)
+longMA = ta.sma(close, longMAPeriod)
+
+// Plotting the moving averages
+plot(shortMA, color=color.blue, title="Short MA")
+plot(longMA, color=color.red, title="Long MA")
+
+// Generating buy and sell signals
+buySignal = ta.crossover(shortMA, longMA)
+sellSignal = ta.crossunder(shortMA, longMA)
+
+// Current bar's time in UTC
+utcTime = timestamp("GMT", year(timenow), month(timenow), dayofmonth(timenow), hour(timenow), minute(timenow), second(timenow))
+
+// Check if the current bar's time is within the user-defined time window
+isWithinTimeWindow = (utcTime >= timestamp("GMT", year(timenow), month(timenow), dayofmonth(timenow), startHour, startMinute, 0)) and (utcTime <= timestamp("GMT", year(timenow), month(timenow), dayofmonth(timenow), endHour, endMinute, 0))
+
+// Plotting buy and sell signals within the time window
+if (buySignal and isWithinTimeWindow)
+    label.new(bar_index, low, "Buy", color=color.green, style=label.style_label_up, textcolor=color.white, size=size.small, yloc=yloc.belowbar)
+
+if (sellSignal and isWithinTimeWindow)
+    label.new(bar_index, high, "Sell", color=color.red, style=label.style_label_down, textcolor=color.white, size=size.small, yloc=yloc.abovebar)
+
+
+    👉Here is there error encountered for 3rd trial
+
+
+    1:01:46 PM  
+Error at 14:27 No value assigned to the separator parameter in str.split()
+1:01:46 PM  
+Error at 15:6 Could not find function or function reference 'str.toint'
