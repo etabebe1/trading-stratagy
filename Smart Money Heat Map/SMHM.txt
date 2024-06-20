@@ -1,0 +1,49 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © AlgoAlpha
+
+//@version=5
+indicator(title="Smart Money Liquidity Heatmap [AlgoAlpha]", shorttitle="AlgoAlpha - 🗺️Smart Money Heatmap", overlay = true, max_lines_count = 500, max_boxes_count = 500)
+
+x = input.int(25, "Index Period", minval = 1, group = "Calculation Settings")
+rr = input.int(14, "Volume Flow Period", minval = 1, group = "Calculation Settings")
+peakslen = input.int(500, "Normalization Period", minval = 1, group = "Calculation Settings")
+thr = input.float(0.85, "High Interest Threshold", minval = 0.01, maxval = 0.99, group = "Calculation Settings")
+
+green = input.color(#00ffbb, "Heatmap Colour", group = "Appearance")
+baset = input.int(99, "Base Transparency", minval = 1, group = "Appearance")
+dumb = ta.pvi-ta.ema(ta.pvi,255)
+smart = ta.nvi-ta.ema(ta.nvi,255)
+drsi = ta.rsi(dumb, rr)
+srsi = ta.rsi(smart, rr)
+r = srsi/drsi //ratio shows if smart money is buying from dumb money selling and vice versa
+sums = math.sum(r, x)
+peak = ta.highest(sums, peakslen)
+index = sums/peak
+
+// Calculating
+candledir = close > open ? 1 : -1
+candlelen = math.abs(close-open)
+
+valleyform = index > thr
+
+max_memory = 90
+
+type bar
+    float h = high
+    float l = low
+    float v = volume
+    int   i = bar_index
+
+//-----------------------------------------------------------------------------}
+// Variables
+//-----------------------------------------------------------------------------{
+
+bar b = bar.new()
+
+var hh = 0.0
+var ll = 0.0
+var aR = array.new_box()
+var aS = array.new_line()
+
+if valleyform
+    aR.push(box.new(bar_index,high,bar_index, low, color.new(green, 100), 1, line.style_solid, extend.right, bgcolor = color.new(green, baset)))
