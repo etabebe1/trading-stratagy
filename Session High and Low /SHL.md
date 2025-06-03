@@ -1,7 +1,8 @@
 //@version=5
-indicator("Session High/Low (Asia, London, NY) - NY Time - Exact Candle Alignment", overlay=true)
+indicator("Session High/Low + Daily Open - NY Time", overlay=true, max_lines_count=500)
 
 // === INPUTS ===
+// Session High/Low Colors
 asiaHighColor = input.color(color.gray, "Asia High Color")
 asiaLowColor = input.color(color.gray, "Asia Low Color")
 londonHighColor = input.color(color.gray, "London High Color")
@@ -10,9 +11,13 @@ nyHighColor = input.color(color.gray, "NY High Color")
 nyLowColor = input.color(color.gray, "NY Low Color")
 lineW = input.int(1, "Line Width")
 
-// === TIME ZONE OFFSET (New York Standard Time = UTC-5, Daylight = UTC-4)
-// For simplicity, we assume Daylight Saving is active (UTC-4)
-nyOffset = -4 // Adjust to -5 if DST is off
+// Daily Open Line Inputs
+showDailyOpen = input.bool(true, "Show Daily Candle Open Line")
+showAllDailyOpens = input.bool(true, "◽ Show All Daily Opens", tooltip="When unchecked, only shows current day's open")
+dailyOpenColor = input.color(color.white, "Daily Open Line Color")
+
+// === TIME ZONE OFFSET ===
+nyOffset = -4 // UTC-4 for NY Daylight Time
 timeNY = time + nyOffset \* 3600000
 hourNY = hour(timeNY)
 dayChange = ta.change(time("D"))
@@ -23,6 +28,7 @@ inLondon = (hourNY >= 3 and hourNY < 9)
 inNY = (hourNY >= 9 and hourNY < 17)
 
 // === VARS ===
+// Session High/Low Variables
 var float asiaHigh = na
 var float asiaLow = na
 var float londonHigh = na
@@ -37,7 +43,15 @@ var int londonLowBar = na
 var int nyHighBar = na
 var int nyLowBar = na
 
+// Daily Open Line Variables
+var float dailyOpen = na
+var int dailyOpenBar = na
+var line[] dailyLines = array.new_line()
+var line currentDayLine = na
+
+// === DAILY OPEN LOGIC ===
 if dayChange
+// Reset Session High/Lows
 asiaHigh := na
 asiaLow := na
 londonHigh := na
@@ -52,7 +66,35 @@ nyLow := na
     nyHighBar := na
     nyLowBar := na
 
-// === Track highs and lows ===
+    // Set Daily Open
+    dailyOpen := open
+    dailyOpenBar := bar_index
+
+    // Clean up current day line if it exists
+    if not na(currentDayLine)
+        line.delete(currentDayLine)
+        currentDayLine := na
+
+    if showDailyOpen and showAllDailyOpens
+        // For all days mode - add to array
+        barsPerDay = math.max(1, 1440 / timeframe.multiplier)
+        lineEnd = bar_index + math.min(barsPerDay * 2, 500)
+        l = line.new(bar_index, dailyOpen, lineEnd, dailyOpen, color=dailyOpenColor, extend=extend.none)
+        array.push(dailyLines, l)
+
+// For current day only mode - draw/update line
+if showDailyOpen and not showAllDailyOpens and not na(dailyOpen)
+if na(currentDayLine)
+currentDayLine := line.new(dailyOpenBar, dailyOpen, dailyOpenBar + 1, dailyOpen, color=dailyOpenColor, width=1, extend=extend.right)
+else
+line.set_xy1(currentDayLine, dailyOpenBar, dailyOpen)
+line.set_xy2(currentDayLine, dailyOpenBar + 1, dailyOpen)
+
+// === CLEAN UP OLD DAILY LINES ===
+if showAllDailyOpens and array.size(dailyLines) > 500
+line.delete(array.shift(dailyLines))
+
+// === Track Session Highs and Lows ===
 if inAsia
 if na(asiaHigh) or high > asiaHigh
 asiaHigh := high
@@ -82,7 +124,7 @@ asiaEnd = hourNY == 2 and hourNY[1] != 2
 londonEnd = hourNY == 9 and hourNY[1] != 9
 nyEnd = hourNY == 17 and hourNY[1] != 17
 
-// === Draw horizontal lines ===
+// === Draw Session High/Low Lines ===
 var line asiaHLine = na
 var line asiaLLine = na
 var line londonHLine = na
