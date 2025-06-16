@@ -154,17 +154,17 @@ nyLLine := line.new(nyLowBar, nyLow, bar_index + 50, nyLow, extend=extend.right,
 showLondonLines = input.bool(true, "Show London Session Vertical Lines")
 londonLine1Hour = input.int(23, "London Line 1 Hour (NY Time)")
 londonLine2Hour = input.int(0, "London Line 2 Hour (NY Time)")
-londonLineColor = input.color(color.teal, "London Line Color")
+londonLineColor = input.color(color.rgb(91, 65, 170, 64), "London Line Color")
 
 showNY_AM_Lines = input.bool(true, "Show NY-AM Session Vertical Lines")
 ny_am_Line1Hour = input.int(6, "NY Line 1 Hour (NY Time)")
 ny_am_Line2Hour = input.int(7, "NY Line 2 Hour (NY Time)")
-ny_am_LineColor = input.color(color.orange, "NY Line Color")
+ny_am_LineColor = input.color(color.rgb(120, 123, 134, 65), "NY Line Color")
 
 showNY_PM_Lines = input.bool(true, "Show NY-PM Session Vertical Lines")
 ny_pm_Line1Hour = input.int(10, "NY Line 1 Hour (NY Time)")
 ny_pm_Line2Hour = input.int(11, "NY Line 2 Hour (NY Time)")
-ny_pm_LineColor = input.color(color.red, "NY Line Color")
+ny_pm_LineColor = input.color(color.rgb(138, 75, 75, 65), "NY Line Color")
 
 // === REUSE EXISTING NY TIME VARIABLES ===
 // Assumes `timeNY`, `hourNY`, and `minute` already exist in the script
