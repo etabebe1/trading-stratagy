@@ -149,3 +149,39 @@ line.delete(nyHLine)
 line.delete(nyLLine)
 nyHLine := line.new(nyHighBar, nyHigh, bar_index + 50, nyHigh, extend=extend.right, color=nyHighColor, width=lineW)
 nyLLine := line.new(nyLowBar, nyLow, bar_index + 50, nyLow, extend=extend.right, color=nyLowColor, width=lineW)
+
+// === VERTICAL LINE INPUTS ===
+showLondonLines = input.bool(true, "Show London Session Vertical Lines")
+londonLine1Hour = input.int(23, "London Line 1 Hour (NY Time)")
+londonLine2Hour = input.int(0, "London Line 2 Hour (NY Time)")
+londonLineColor = input.color(color.teal, "London Line Color")
+
+showNY_AM_Lines = input.bool(true, "Show NY-AM Session Vertical Lines")
+ny_am_Line1Hour = input.int(6, "NY Line 1 Hour (NY Time)")
+ny_am_Line2Hour = input.int(7, "NY Line 2 Hour (NY Time)")
+ny_am_LineColor = input.color(color.orange, "NY Line Color")
+
+showNY_PM_Lines = input.bool(true, "Show NY-PM Session Vertical Lines")
+ny_pm_Line1Hour = input.int(10, "NY Line 1 Hour (NY Time)")
+ny_pm_Line2Hour = input.int(11, "NY Line 2 Hour (NY Time)")
+ny_pm_LineColor = input.color(color.red, "NY Line Color")
+
+// === REUSE EXISTING NY TIME VARIABLES ===
+// Assumes `timeNY`, `hourNY`, and `minute` already exist in the script
+
+// === FUNCTION TO DRAW FULL VERTICAL LINE ===
+drawFullVerticalLine(condition, color) =>
+if condition
+line.new(x1=bar_index, y1=low, x2=bar_index, y2=high, xloc=xloc.bar_index, extend=extend.both, color=color, style=line.style_solid, width=1)
+
+// === DRAW LONDON SESSION FULL VERTICAL LINES ===
+drawFullVerticalLine(showLondonLines and hourNY == londonLine1Hour and minute == 0, londonLineColor)
+drawFullVerticalLine(showLondonLines and hourNY == londonLine2Hour and minute == 0, londonLineColor)
+
+// === DRAW NY-AM SESSION FULL VERTICAL LINES ===
+drawFullVerticalLine(showNY_AM_Lines and hourNY == ny_am_Line1Hour and minute == 0, ny_am_LineColor)
+drawFullVerticalLine(showNY_AM_Lines and hourNY == ny_am_Line2Hour and minute == 0, ny_am_LineColor)
+
+// === DRAW NY-PM SESSION FULL VERTICAL LINES ===
+drawFullVerticalLine(showNY_PM_Lines and hourNY == ny_pm_Line1Hour and minute == 0, ny_pm_LineColor)
+drawFullVerticalLine(showNY_PM_Lines and hourNY == ny_pm_Line2Hour and minute == 0, ny_pm_LineColor)
